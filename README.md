@@ -21,7 +21,7 @@ Computer ──USB (MSC)──▶ ESP32-S3 ──WiFi/HTTPS──▶ reverse pro
 USB Mass Storage carries **sectors**, not files — the computer runs FAT/exFAT on top. Therefore:
 
 - The server holds **a disk image**, not a browsable directory. To look at the files, eject the drive on the computer first, then on the server run `sudo mount -o loop,ro disk.img /mnt/x`. **Never mount it on the server while the computer has it mounted** — two writers will corrupt the filesystem.
-- Throughput is bounded by the S3's Full-Speed USB (12 Mbit/s) and by network round trips: about 250 KB/s for large files. Fine for documents and photos, not for many small files or large videos.
+- Throughput is bounded by the S3's Full-Speed USB (12 Mbit/s) and by network round trips: about 260 KB/s for large files (roughly 65 minutes per GB). Fine for documents and photos, not for many small files or large videos.
 
 ## Hardware
 
@@ -116,6 +116,7 @@ ESP32-S3 on a WPA2-Enterprise WiFi network (RSSI about −50 dBm), connecting th
 | Scenario | Result |
 |---|---|
 | 50MB file write / cold read | 249 KB/s / 255 KB/s, sha256 matches |
+| 200MB file write / cold read | 261 KB/s / 262 KB/s (26 minutes, no WiFi drops, request retries or lost writes), sha256 matches on the computer and in the server-side image |
 | 16MB raw device cold read | 129 KB/s |
 | Writing 200 × 4KB files | 31.8 s (small files keep rewriting the FAT, so they are much slower) |
 | `mkfs.vfat -F 32` on 1GB | 41 s |

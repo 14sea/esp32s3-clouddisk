@@ -12,7 +12,9 @@ find_disk() {
     lsblk -dno NAME,MODEL | awk '$2=="Cloud" {print "/dev/"$1; exit}'
 }
 
+via_scsi=0
 if [ ! -e "$PORT" ]; then
+    via_scsi=1
     disk="$(find_disk)"
     if [ -n "$disk" ]; then
         echo "==> 給 $disk 發「重啟進下載模式」命令"
@@ -35,9 +37,12 @@ cd "$PROJ_ROOT/firmware/usb_disk"
 idf.py build >/dev/null
 idf.py -p "$PORT" flash | tail -3
 
-# 經 usbipd 的 USB-Serial-JTAG 上，esptool 的 hard_reset / watchdog_reset / run 實測都回到下載模式
-# （ROM 報 boot:0x21 DOWNLOAD，GPIO0 被看成低電平），只有斷電重上電能進 app
-echo "==> 燒錄完成。請拔插一次原生 USB 口的線（斷電重啟），板子才會跑新固件"
+# 軟件進的下載模式（RTC 強制下載標誌），esptool 復位後直接跑新固件。
+# 用 BOOT+RST 進的下載模式則不行：hard_reset / watchdog_reset / run 實測都回到下載模式
+# （ROM 報 boot:0x21 DOWNLOAD），只有斷電重上電能進 app
+if [ "$via_scsi" = 0 ]; then
+    echo "==> 燒錄完成。這次是按鍵進的下載模式，請拔插一次原生 USB 口的線，板子才會跑新固件"
+fi
 echo "==> 等 U 盤重新出現（最多 120 秒）"
 for _ in $(seq 120); do d="$(find_disk)"; [ -n "$d" ] && break; sleep 1; done
 [ -n "${d:-}" ] && lsblk -o NAME,SIZE,TRAN,MODEL,SERIAL "$d" || echo "U 盤沒出現：確認 usbipd 有 --auto-attach 把它掛回 WSL"
