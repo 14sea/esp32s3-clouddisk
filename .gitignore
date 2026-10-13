@@ -1,0 +1,15 @@
+# 憑據：只提交 secrets.env.example
+secrets.env
+firmware/common/board_common/include/wifi_secrets.h
+firmware/usb_disk/main/clouddisk_secrets.h
+
+# ESP-IDF 構建產物
+firmware/*/build/
+firmware/*/sdkconfig
+firmware/*/sdkconfig.old
+firmware/*/managed_components/
+
+__pycache__/
+
+# 本地測試報告、建置副本和日誌（含本機路徑），不提交
+tmp/

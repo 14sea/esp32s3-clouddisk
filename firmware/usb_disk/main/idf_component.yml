@@ -1,0 +1,6 @@
+dependencies:
+  # 直接用 TinyUSB，不用 esp_tinyusb：後者的 MSC 層自帶強符號 SCSI 回調、只支持 SPI Flash/SD，
+  # 方向 2 要把磁區轉發到網絡，必須自己寫回調
+  espressif/tinyusb: "^0.21.0"
+  idf:
+    version: ">=5.0"

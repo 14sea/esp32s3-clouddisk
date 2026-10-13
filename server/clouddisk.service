@@ -1,0 +1,15 @@
+# 安裝：把 YOUR_USER 換成服務器上的用戶名後
+#   sudo cp clouddisk.service /etc/systemd/system/ && sudo systemctl enable --now clouddisk
+[Unit]
+Description=ESP32-S3 cloud disk sector server
+After=network-online.target
+
+[Service]
+User=YOUR_USER
+ExecStart=/usr/bin/python3 /home/YOUR_USER/clouddisk/clouddisk_server.py
+Restart=on-failure
+# 小內存機器上限制住，別把系統拖垮
+MemoryMax=128M
+
+[Install]
+WantedBy=multi-user.target
